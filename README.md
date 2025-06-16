@@ -2,6 +2,12 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6.
 
+## UI Frontend
+![image](https://github.com/user-attachments/assets/936d0a2b-8f03-430e-9230-1f1ef7f52eac)
+![image](https://github.com/user-attachments/assets/7d3f9556-8b41-408c-9b7d-f30b8cb1a9ba)
+![image](https://github.com/user-attachments/assets/1a399183-c631-49be-baa6-3889fcabb7d0)
+![image](https://github.com/user-attachments/assets/db24a607-3647-47a9-8c2b-b1fb422dcb09)
+
 ## Development server
 
 To start a local development server, run:
