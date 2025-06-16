@@ -1,0 +1,32 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-left">
+      <h1>Sign in</h1>
+      <div class="logos">
+        <img src="assets/kaar.png" alt="Kaar Logo" class="login-logo" />
+        <img src="assets/sap.png" alt="SAP Logo" class="login-logo" />
+      </div>
+      <p class="login-description">Enter your vendor login credentials to continue.</p>
+    </div>
+
+    <div class="login-right">
+      <h2>Enter User Details</h2>
+      <form (ngSubmit)="login()" #form="ngForm">
+        <mat-form-field appearance="outline" class="full-width" >
+          <mat-label>Username</mat-label>
+          <input matInput name="username" [(ngModel)]="username" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" >
+          <mat-label>Password</mat-label>
+          <input matInput name="password" type="password" [(ngModel)]="password" required />
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="login-button">
+          Sign In
+        </button>
+        <p class="error-message" *ngIf="showError">Invalid credentials</p>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,364 @@
+<div class="layout-container">
+  <app-sidebar></app-sidebar>
+  <div class="content">
+    <div class="dashboard-container">
+      <!-- Hero Banner Section -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <h1 class="hero-title">Finance Dashboard</h1>
+          <p class="hero-subtitle">
+            Manage your complete financial transactions with real-time integration to our ERP system.
+            Track Invoice Details, Payments & Aging, and Credit/Debit Memos for comprehensive financial oversight.
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-number">{{ getTotalCount('invoice') }}</span>
+            <span class="stat-label">Invoices</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">{{ getTotalAmount('invoice') | currency:'INR':'symbol':'1.0-0' }}</span>
+            <span class="stat-label">Total Amount</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">{{ getOverdueCount() }}</span>
+            <span class="stat-label">Overdue</span>
+          </div>
+        </div>
+      </div>
+      <!-- Navigation Tabs -->
+      <mat-tab-group class="dashboard-tabs" (selectedTabChange)="onTabChange($event)">
+        <mat-tab label="Invoice Details">   
+          <div class="tab-content">
+            <!-- Search and Filter Section -->
+            <div class="table-controls">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search Invoices</mat-label>
+                <input matInput (keyup)="applyFilter($event, 'invoice')" placeholder="Search by Invoice No, Status..." #invoiceInput>
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+              <div class="action-buttons">
+                <button mat-raised-button color="accent" (click)="refreshData()">
+                  <mat-icon>refresh</mat-icon>
+                  Refresh
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Invoice Table -->
+            <div class="table-container">
+              <table mat-table [dataSource]="invoiceDataSource" matSort #invoiceSort="matSort"  class="mat-elevation-2" >
+                <ng-container matColumnDef="invoiceNo">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Invoice No</th>
+                  <td mat-cell *matCellDef="let element">{{ element.invoiceNo }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="fiscalYear">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Fiscal Year</th>
+                  <td mat-cell *matCellDef="let element">{{ element.fiscalYear }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="billingDate">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Billing Date</th>
+                  <td mat-cell *matCellDef="let element">{{ element.billingDate | date:'mediumDate' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="amount-text">{{ element.amount | currency:element.currency:'symbol':'1.0-0' }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="currency">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
+                  <td mat-cell *matCellDef="let element">{{ element.currency }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="status-badge" [ngClass]="'status-' + element.status.toLowerCase().replace(' ', '-')">
+                      {{ element.status }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let element" [attr.data-invoice]="element.invoiceNo">
+                    <!-- <button mat-icon-button color="primary" matTooltip="Download Invoice" 
+                            class="download-btn" (click)="downloadInvoice(element)">
+                      <mat-icon>download</mat-icon>
+                    </button> -->
+                    <button class="download-btn" (click)="downloadInvoice(element)"><mat-icon>download</mat-icon></button> 
+                    <button class="download-btn" (click)="previewInvoice(element)"><mat-icon>preview</mat-icon></button>
+
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsInvoice"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsInvoice;"></tr>
+
+                <!-- No data row -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" [attr.colspan]="displayedColumnsInvoice.length">
+                    <div *ngIf="isLoadingInvoice; else noDataTemplate" class="loading-message">
+                      Loading invoice data...
+                    </div>
+                    <ng-template #noDataTemplate>
+                      No data matching the filter "{{ invoiceInput.value }}"
+                    </ng-template>
+                  </td>
+                </tr>
+              </table>
+
+              <mat-paginator #invoicePaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Payments & Aging">
+          <div class="tab-content">
+            <!-- Payment History Table -->
+            <div class="table-controls">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search Payments</mat-label>
+                <input matInput (keyup)="applyFilter($event, 'payment')" placeholder="Search by Document No, Status..." #paymentInput>
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+                <div class="action-buttons">
+                <button mat-raised-button color="accent" (click)="refreshData()">
+                  <mat-icon>refresh</mat-icon>
+                  Refresh
+                </button>
+
+              </div>
+             
+            </div>
+
+            <div class="table-container">
+              <table mat-table [dataSource]="paymentDataSource" matSort #paymentSort="matSort" class="mat-elevation-2">
+                <ng-container matColumnDef="documentNo">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Document No</th>
+                  <td mat-cell *matCellDef="let element">{{ element.documentNo }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="postingDate">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Posting Date</th>
+                  <td mat-cell *matCellDef="let element">{{ element.postingDate | date:'mediumDate' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+                  <td mat-cell *matCellDef="let element">{{ element.amount | currency:element.currency:'symbol':'1.0-0' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="currency">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
+                  <td mat-cell *matCellDef="let element">{{ element.currency }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="dueDate">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</th>
+                  <td mat-cell *matCellDef="let element">{{ element.dueDate | date:'mediumDate' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="aging">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Aging (Days)</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="aging-badge" [ngClass]="getAgingClass(element.aging)">
+                      {{ element.aging }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="status-badge" [ngClass]="'status-' + element.status.toLowerCase().replace(' ', '-')">
+                      {{ element.status }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsPayment"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsPayment;"></tr>
+
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" [attr.colspan]="displayedColumnsPayment.length">
+                    <div *ngIf="isLoadingPayment; else noPaymentDataTemplate" class="loading-message">
+                      Loading payment data...
+                    </div>
+                    <ng-template #noPaymentDataTemplate>
+                      No data matching the filter "{{ paymentInput.value }}"
+                    </ng-template>
+                  </td>
+                </tr>
+              </table>
+
+              <mat-paginator #paymentPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Credit/Debit Memos">
+          <div class="tab-content">
+            <!-- Credit Memos Section -->
+            <div class="memo-section">
+              <h3>Credit Memos</h3>
+              <div class="table-controls">
+                <mat-form-field appearance="outline" class="search-field">
+                  <mat-label>Search Credit Memos</mat-label>
+                  <input matInput (keyup)="applyFilter($event, 'credit')" placeholder="Search by Memo No, Type..." #creditInput>
+                  <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+                  <div class="action-buttons">
+                <button mat-raised-button color="accent" (click)="refreshData()">
+                  <mat-icon>refresh</mat-icon>
+                  Refresh
+                </button>
+              </div>
+              </div>
+
+              <div class="table-container">
+                <table mat-table [dataSource]="creditDataSource" matSort #creditSort="matSort" class="mat-elevation-2">
+                  <ng-container matColumnDef="memoNo">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Memo No</th>
+                    <td mat-cell *matCellDef="let element">{{ element.memoNo }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="postingDate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Posting Date</th>
+                    <td mat-cell *matCellDef="let element">{{ element.postingDate | date:'mediumDate' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+                    <td mat-cell *matCellDef="let element">
+                      <span class="credit-amount">{{ element.amount | currency:element.currency:'symbol':'1.0-0' }}</span>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="currency">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
+                    <td mat-cell *matCellDef="let element">{{ element.currency }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="companyCode">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Company Code</th>
+                    <td mat-cell *matCellDef="let element">{{ element.companyCode }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+                    <td mat-cell *matCellDef="let element">{{ element.type }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                    <td mat-cell *matCellDef="let element">
+                      <span class="status-badge" [ngClass]="'status-' + element.status.toLowerCase().replace(' ', '-')">
+                        {{ element.status }}
+                      </span>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumnsCredit"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumnsCredit;"></tr>
+
+                  <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell" [attr.colspan]="displayedColumnsCredit.length">
+                      <div *ngIf="isLoadingCredit; else noCreditDataTemplate" class="loading-message">
+                        Loading credit memo data...
+                      </div>
+                      <ng-template #noCreditDataTemplate>
+                        No data matching the filter "{{ creditInput.value }}"
+                      </ng-template>
+                    </td>
+                  </tr>
+                </table>
+
+                <mat-paginator #creditPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+              </div>
+            </div>
+
+            <!-- Debit Memos Section -->
+            <div class="memo-section">
+              <h3>Debit Memos</h3>
+              <div class="table-controls">
+                <mat-form-field appearance="outline" class="search-field">
+                  <mat-label>Search Debit Memos</mat-label>
+                  <input matInput (keyup)="applyFilter($event, 'debit')" placeholder="Search by Memo No, Type..." #debitInput>
+                  <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="table-container">
+                <table mat-table [dataSource]="debitDataSource" matSort #debitSort="matSort" class="mat-elevation-2">
+                  <ng-container matColumnDef="memoNo">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Memo No</th>
+                    <td mat-cell *matCellDef="let element">{{ element.memoNo }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="postingDate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Posting Date</th>
+                    <td mat-cell *matCellDef="let element">{{ element.postingDate | date:'mediumDate' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+                    <td mat-cell *matCellDef="let element">
+                      <span class="debit-amount">{{ element.amount | currency:element.currency:'symbol':'1.0-0' }}</span>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="currency">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
+                    <td mat-cell *matCellDef="let element">{{ element.currency }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="companyCode">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Company Code</th>
+                    <td mat-cell *matCellDef="let element">{{ element.companyCode }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+                    <td mat-cell *matCellDef="let element">{{ element.type }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                    <td mat-cell *matCellDef="let element">
+                      <span class="status-badge" [ngClass]="'status-' + element.status.toLowerCase().replace(' ', '-')">
+                        {{ element.status }}
+                      </span>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumnsDebit"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumnsDebit;"></tr>
+
+                  <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell" [attr.colspan]="displayedColumnsDebit.length">
+                      <div *ngIf="isLoadingDebit; else noDebitDataTemplate" class="loading-message">
+                        Loading debit memo data...
+                      </div>
+                      <ng-template #noDebitDataTemplate>
+                        No data matching the filter "{{ debitInput.value }}"
+                      </ng-template>
+                    </td>
+                  </tr>
+                </table>
+
+                <mat-paginator #debitPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div> 
+</div>

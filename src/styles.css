@@ -1,0 +1,31 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Fredoka+Light&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka&display=swap');
+body {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  background: linear-gradient(
+    135deg,
+    /* #e80327, */
+    #f8e7ed,
+    /* #fa9817, */
+    #e9c5e7,
+    #c6eedd,
+    #d2e0f0
+  );
+  
+  background-size: 400% 400%;
+  animation: gradientShift 60s ease infinite;
+  min-height: 100vh;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

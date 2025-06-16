@@ -1,0 +1,224 @@
+<div class="layout-container">
+  <app-sidebar></app-sidebar>
+  <div class="content">
+    <div class="dashboard-container">
+      <!-- Hero Banner Section -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <h1 class="hero-title">Vendor Dashboard</h1>
+          <p class="hero-subtitle">
+            Manage your complete business transactions with seamless integration to our ERP system.
+            Track Request for Quotations, Purchase Orders, and Goods Receipts all in one unified platform.
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-number">{{ getTotalCount('rfq') }}</span>
+            <span class="stat-label">RFQs</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">{{ getTotalCount('po') }}</span>
+            <span class="stat-label">Purchase Orders</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">{{ getTotalCount('gr') }}</span>
+            <span class="stat-label">Goods Receipts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <mat-tab-group class="dashboard-tabs" (selectedTabChange)="onTabChange($event)" #tabGroup>
+        <mat-tab label="Request for Quotation">
+          <div class="tab-content">
+            <!-- Search Section -->
+            <div class="table-controls">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search RFQs</mat-label>
+                <input matInput (keyup)="applyFilter($event, 'rfq')" placeholder="Search by RFQ ID, Material..." #rfqInput>
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <!-- RFQ Table -->
+            <div class="table-container">
+              <table mat-table [dataSource]="rfqDataSource" matSort class="mat-elevation-2" #rfqTable>
+                <ng-container matColumnDef="ebeln">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>RFQ Number</th>
+                  <td mat-cell *matCellDef="let element">{{ element.ebeln }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="bedat">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+                  <td mat-cell *matCellDef="let element">{{ element.bedat | date:'mediumDate' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="matnr">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Material</th>
+                  <td mat-cell *matCellDef="let element">{{ element.matnr }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="txz01">
+                  <th mat-header-cell *matHeaderCellDef>Description</th>
+                  <td mat-cell *matCellDef="let element">{{ element.txz01 }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="meins">
+                  <th mat-header-cell *matHeaderCellDef>Unit</th>
+                  <td mat-cell *matCellDef="let element">{{ element.meins }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="ebelp">
+                  <th mat-header-cell *matHeaderCellDef>Item</th>
+                  <td mat-cell *matCellDef="let element">{{ element.ebelp }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsRFQ"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsRFQ;"></tr>
+
+                <!-- No data row -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" [attr.colspan]="displayedColumnsRFQ.length">
+                    No data matching the filter "{{ rfqInput.value }}"
+                  </td>
+                </tr>
+              </table>
+
+              <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons #rfqPaginator></mat-paginator>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Purchase Orders">
+          <div class="tab-content">
+            <!-- Search Section -->
+            <div class="table-controls">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search Purchase Orders</mat-label>
+                <input matInput (keyup)="applyFilter($event, 'po')" placeholder="Search by PO Number, Material..." #poInput>
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <!-- PO Table -->
+            <div class="table-container">
+              <table mat-table [dataSource]="poDataSource" matSort class="mat-elevation-2" #poTable>
+                <ng-container matColumnDef="ebeln">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>PO Number</th>
+                  <td mat-cell *matCellDef="let element">{{ element.ebeln }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="bedat">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+                  <td mat-cell *matCellDef="let element">{{ element.bedat | date:'mediumDate' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="matnr">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Material</th>
+                  <td mat-cell *matCellDef="let element">{{ element.matnr }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="txz01">
+                  <th mat-header-cell *matHeaderCellDef>Description</th>
+                  <td mat-cell *matCellDef="let element">{{ element.txz01 }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="netpr">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Net Price</th>
+                  <td mat-cell *matCellDef="let element">{{ element.netpr }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="waers">
+                  <th mat-header-cell *matHeaderCellDef>Currency</th>
+                  <td mat-cell *matCellDef="let element">{{ element.waers }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="meins">
+                  <th mat-header-cell *matHeaderCellDef>Unit</th>
+                  <td mat-cell *matCellDef="let element">{{ element.meins }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsPO"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsPO;"></tr>
+
+                <!-- No data row -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" [attr.colspan]="displayedColumnsPO.length">
+                    No data matching the filter "{{ poInput.value }}"
+                  </td>
+                </tr>
+              </table>
+
+              <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons #poPaginator></mat-paginator>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Goods Receipts">
+          <div class="tab-content">
+            <!-- Search Section -->
+            <div class="table-controls">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search Goods Receipts</mat-label>
+                <input matInput (keyup)="applyFilter($event, 'gr')" placeholder="Search by GRN, Material..." #grInput>
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <!-- GR Table -->
+            <div class="table-container">
+              <table mat-table [dataSource]="grDataSource" matSort class="mat-elevation-2" #grTable>
+                <ng-container matColumnDef="mblnr">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>GRN</th>
+                  <td mat-cell *matCellDef="let element">{{ element.mblnr }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="budat">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+                  <td mat-cell *matCellDef="let element">{{ element.budat | date:'mediumDate' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="ebeln">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>PO Number</th>
+                  <td mat-cell *matCellDef="let element">{{ element.ebeln }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="matnr">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Material</th>
+                  <td mat-cell *matCellDef="let element">{{ element.matnr }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="ebelp">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Item</th>
+                  <td mat-cell *matCellDef="let element">{{ element.ebelp }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="meins">
+                  <th mat-header-cell *matHeaderCellDef>Unit</th>
+                  <td mat-cell *matCellDef="let element">{{ element.meins }}</td>
+                </ng-container>
+<!-- 
+                <ng-container matColumnDef="werks">
+                  <th mat-header-cell *matHeaderCellDef>Plant</th>
+                  <td mat-cell *matCellDef="let element">{{ element.werks }}</td>
+                </ng-container> -->
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsGR"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsGR;"></tr>
+
+                <!-- No data row -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" [attr.colspan]="displayedColumnsGR.length">
+                    No data matching the filter "{{ grInput.value }}"
+                  </td>
+                </tr>
+              </table>
+
+              <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons #grPaginator></mat-paginator>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>

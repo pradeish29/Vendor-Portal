@@ -1,0 +1,49 @@
+<div class="layout-container">
+  <app-sidebar/>
+  <div class="content">
+    <div class="profile-container">
+      <div class="profile-card">
+        
+        <div class="profile-header">
+          <img src="assets/profile.png" alt="Profile Photo" class="profile-photo" />
+          <h1 class="profile-name">{{ customerData.name }}</h1>
+          <p class="vendor-id">Vendor ID: {{ customerData.vendorId }}</p>
+        </div>
+
+        <div class="profile-details">
+          <div class="detail-item">
+            <div class="detail-label">House/Building No</div>
+            <div class="detail-value">{{ customerData.houseNo }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Street</div>
+            <div class="detail-value">{{ customerData.street }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">City</div>
+            <div class="detail-value">{{ customerData.city }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Country</div>
+            <div class="detail-value">{{ customerData.country }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Postal Code</div>
+            <div class="detail-value">{{ customerData.postalCode }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Account Type</div>
+            <div class="detail-value">{{ customerData.accountType }}</div>
+          </div>
+        </div>
+
+        <button class="signout-btn" (click)="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>

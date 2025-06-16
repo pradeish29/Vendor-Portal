@@ -1,0 +1,47 @@
+<nav class="sidebar">
+  <div class="logo">
+    <img src="assets/logo.png" alt="Kaar Logo" class="logo" (click)="navigateHome()" />
+    <h2>Vendor Portal</h2>
+  </div>
+
+  <a 
+    class="nav-link" 
+    routerLink="/home" 
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <mat-icon class="icon">home</mat-icon>
+    <span class="label">Home</span>
+  </a>
+
+  <a 
+    class="nav-link" 
+    routerLink="/dashboard" 
+    routerLinkActive="active-link"
+  >
+    <mat-icon class="icon">dashboard</mat-icon>
+    <span class="label">Dashboard</span>
+  </a>
+
+  <a 
+    class="nav-link" 
+    routerLink="/finance" 
+    routerLinkActive="active-link"
+  >
+    <mat-icon class="icon">account_balance_wallet</mat-icon>
+    <span class="label">Finance</span>
+  </a>
+
+  <a 
+    class="nav-link" 
+    routerLink="/profile" 
+    routerLinkActive="active-link"
+  >
+    <mat-icon class="icon">person</mat-icon>
+    <span class="label">Profile</span>
+  </a>
+<!-- <div class="signout">   
+     <button class="signout-btn" (click)="signOut()"><mat-icon class="icon">logout</mat-icon>Sign Out</button>
+</div> -->
+
+</nav>
